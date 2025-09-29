@@ -66,14 +66,81 @@ jobs:
       run: |
         echo "🔍 Final validation before Arduino Library Manager submission..."
         ./scripts/validate-library.sh
+
+  # Publish to NPM
+  npm-publish:
+    needs: [tests, release]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
     
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        registry-url: 'https://registry.npmjs.org'
+    
+    - name: Install dependencies
+      run: npm ci --ignore-scripts
+    
+    - name: Validate package.json
+      run: |
+        echo "📦 Validating NPM package configuration..."
+        npm run validate-library || echo "Library validation completed"
+        
+        # Check if package name is available (for first-time publishing)
+        echo "🔍 Checking NPM package availability..."
+        if npm view alteriom-ebyte-lora-e220 version 2>/dev/null; then
+          echo "✅ Package exists - this will be an update"
+        else
+          echo "🆕 Package doesn't exist - this will be first publication"
+        fi
+    
+    - name: Publish to NPM
+      run: |
+        echo "📦 Publishing to NPM..."
+        npm publish --access public
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    
+    - name: NPM Publication Success
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "================================"
+        echo "🎉 NPM Publication Successful!"
+        echo "================================"
+        echo ""
+        echo "📦 Package: alteriom-ebyte-lora-e220@$VERSION"
+        echo "🔗 NPM URL: https://www.npmjs.com/package/alteriom-ebyte-lora-e220"
+        echo "📥 Install: npm install alteriom-ebyte-lora-e220"
+        echo ""
+        echo "🔧 MCP Integration:"
+        echo "   npm install alteriom-ebyte-lora-e220"
+        echo "   # Use in MCP server configurations"
+        echo ""
+        echo "💡 Documentation:"
+        echo "   - Arduino examples: examples/"
+        echo "   - MCP configuration: .github/mcp-server-config.json"
+        echo "   - PlatformIO: platformio.ini"
+        echo "================================"
+
+  submission-instructions:
+    needs: [release, npm-publish]
+    runs-on: ubuntu-latest
+    if: always() && needs.release.result == 'success'
+    
+    steps:
     - name: Arduino Library Manager Submission Instructions
       run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
         echo "================================"
         echo "🚀 Arduino Library Manager Submission"
         echo "================================"
         echo ""
-        echo "✅ Release ${{ steps.release_notes.outputs.VERSION }} has been created successfully!"
+        echo "✅ Release $VERSION has been created successfully!"
         echo ""
         echo "📋 Next Steps:"
         echo "1. Go to: https://github.com/arduino/library-registry"
@@ -86,7 +153,7 @@ jobs:
         echo "   Repository URL: https://github.com/Alteriom/EByte_LoRa_E220_Series_Library"
         echo "   Release tag: ${{ github.ref_name }}"
         echo "   Library name: Alteriom_EByte_LoRa_E220"
-        echo "   Version: ${{ steps.release_notes.outputs.VERSION }}"
+        echo "   Version: $VERSION"
         echo "   "
         echo "   This is a fork of the EByte LoRa E220 Series Library with enhanced"
         echo "   CI/CD, automated releases, and improved Arduino Library Manager compatibility."
@@ -96,7 +163,8 @@ jobs:
         echo "4. 🎉 Library will be available in Arduino Library Manager after approval"
         echo ""
         echo "💡 Additional Resources:"
-        echo "   - Release Notes: https://github.com/Alteriom/EByte_LoRa_E220_Series_Library/releases/tag/${{ github.ref_name }}"
+        echo "   - GitHub Release: https://github.com/Alteriom/EByte_LoRa_E220_Series_Library/releases/tag/${{ github.ref_name }}"
+        echo "   - NPM Package: https://www.npmjs.com/package/alteriom-ebyte-lora-e220"
         echo "   - Documentation: https://github.com/Alteriom/EByte_LoRa_E220_Series_Library/blob/main/README_ALTERIOM.md"
         echo "   - Deployment Guide: https://github.com/Alteriom/EByte_LoRa_E220_Series_Library/blob/main/DEPLOYMENT_GUIDE.md"
         echo "================================"

@@ -38,14 +38,36 @@ After the GitHub release is created:
    Title: Add Alteriom_EByte_LoRa_E220 library
    
    Repository URL: https://github.com/Alteriom/EByte_LoRa_E220_Series_Library
-   Release tag: v1.0.0
+   Release tag: v1.1.0
    Library name: Alteriom_EByte_LoRa_E220
    ```
 
-### Step 5: Verify Distribution
+### Step 5: NPM Package Publication
+The release workflow automatically publishes to NPM:
+
+1. **Automatic Publication**: NPM package is published during release workflow
+2. **Package Name**: `alteriom-ebyte-lora-e220`
+3. **Installation**: `npm install alteriom-ebyte-lora-e220`
+4. **NPM URL**: https://www.npmjs.com/package/alteriom-ebyte-lora-e220
+
+**NPM Package Features:**
+- MCP (Model Context Protocol) server integration
+- Arduino CLI and PlatformIO configurations
+- Development dependencies for embedded toolchains
+- Scripts for building, testing, and validation
+
+**MCP Server Usage:**
+```bash
+npm install alteriom-ebyte-lora-e220
+# Use in your MCP server configuration
+# See .github/mcp-server-config.json for setup
+```
+
+### Step 6: Verify Distribution
 Check that the library appears in:
 - [ ] GitHub releases
 - [ ] Arduino Library Manager (after approval)
+- [ ] NPM registry at https://www.npmjs.com/package/alteriom-ebyte-lora-e220
 - [ ] PlatformIO registry (if configured)
 
 ## 📋 Pre-Release Checklist

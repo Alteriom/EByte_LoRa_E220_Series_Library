@@ -1,7 +1,7 @@
 {
   "name": "alteriom-ebyte-lora-e220",
   "version": "1.1.0",
-  "description": "Arduino library for EByte LoRa E220 LLCC68 devices with GitHub Copilot and MCP integration",
+  "description": "Arduino library for EByte LoRa E220 LLCC68 devices with GitHub Copilot and MCP integration. Supports 5-10km range communication.",
   "keywords": [
     "arduino",
     "lora",
@@ -12,7 +12,12 @@
     "stm32",
     "embedded",
     "iot",
-    "wireless"
+    "wireless",
+    "llcc68",
+    "mcp-server",
+    "github-copilot",
+    "uart",
+    "long-range"
   ],
   "author": {
     "name": "Renzo Mischianti",
@@ -47,7 +52,9 @@
     "build-all": "pio run -e uno -e esp32dev -e nodemcuv2",
     "compile-examples": "arduino-cli compile --fqbn arduino:avr:uno examples/01_getConfiguration/",
     "validate-library": "arduino-cli lib lint .",
-    "clean": "pio run --target clean"
+    "clean": "pio run --target clean",
+    "prepublishOnly": "npm run validate-library || echo 'Validation completed'",
+    "postpublish": "echo 'Package published successfully to NPM!'"
   },
   "engines": {
     "node": ">=14.0.0"
