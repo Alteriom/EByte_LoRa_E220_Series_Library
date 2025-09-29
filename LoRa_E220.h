@@ -1148,55 +1148,458 @@ class LoRa_E220 {
 		ResponseStatus resetModule();
 /** @} */ // End of Device Information and Control group
 
+/**
+ * @name Message Transmission
+ * @brief Methods for sending data using various transmission modes
+ * @{
+ */
+		/**
+		 * @brief Send binary data message
+		 * @param message Pointer to data buffer to send
+		 * @param size Number of bytes to send (max 200 bytes)
+		 * @return ResponseStatus indicating success or failure
+		 * 
+		 * Sends raw binary data using the current transmission mode (transparent or fixed).
+		 * In transparent mode, data is sent directly. In fixed mode, first 3 bytes
+		 * are used for addressing (ADDH, ADDL, CHAN).
+		 * 
+		 * @note Maximum packet size is 200 bytes (MAX_SIZE_TX_PACKET)
+		 * @note Device must be in normal transmission mode (MODE_0_NORMAL)
+		 * @warning Exceeding 200 bytes will result in ERR_E220_PACKET_TOO_BIG
+		 * 
+		 * @example Sending binary data:
+		 * @code
+		 * uint8_t data[] = {0x01, 0x02, 0x03, 0x04};
+		 * ResponseStatus status = e220ttl.sendMessage(data, sizeof(data));
+		 * if (status.code == E220_SUCCESS) {
+		 *     Serial.println("Binary data sent successfully");
+		 * }
+		 * @endcode
+		 */
 		ResponseStatus sendMessage(const void *message, const uint8_t size);
 
+/**
+ * @name Message Reception
+ * @brief Methods for receiving data with various options
+ * @{
+ */
+	    /**
+	     * @brief Receive message until delimiter character
+	     * @param delimiter Character to stop reading at (default: null terminator)
+	     * @return ResponseContainer with received string and status
+	     * 
+	     * Reads incoming data until the specified delimiter character is encountered.
+	     * Useful for receiving text messages with known terminators.
+	     * 
+	     * @note Default delimiter ('\0') reads until null terminator
+	     * @note RSSI information may be included if enabled in configuration
+	     * 
+	     * @example Receiving until newline:
+	     * @code
+	     * ResponseContainer response = e220ttl.receiveMessageUntil('\n');
+	     * if (response.status.code == E220_SUCCESS) {
+	     *     Serial.print("Received: "); Serial.println(response.data);
+	     * }
+	     * @endcode
+	     */
 	    ResponseContainer receiveMessageUntil(char delimiter = '\0');
+	    
+		/**
+		 * @brief Receive fixed-size binary message
+		 * @param size Number of bytes to receive
+		 * @return ResponseStructContainer with binary data and status
+		 * 
+		 * Receives exactly the specified number of bytes as binary data.
+		 * Useful for receiving structured data or when message size is known.
+		 * 
+		 * @note Blocks until specified number of bytes received or timeout
+		 * @warning Always call close() on returned container to free memory
+		 * 
+		 * @example Receiving binary data:
+		 * @code
+		 * ResponseStructContainer response = e220ttl.receiveMessage(10);
+		 * if (response.status.code == E220_SUCCESS) {
+		 *     uint8_t* data = (uint8_t*)response.data;
+		 *     // Process binary data...
+		 * }
+		 * response.close();
+		 * @endcode
+		 */
 		ResponseStructContainer receiveMessage(const uint8_t size);
+		
+		/**
+		 * @brief Receive fixed-size message with RSSI
+		 * @param size Number of bytes to receive
+		 * @return ResponseStructContainer with binary data, RSSI, and status
+		 * 
+		 * Receives exactly the specified number of bytes with signal strength information.
+		 * RSSI value provides information about signal quality.
+		 * 
+		 * @note RSSI must be enabled in device configuration
+		 * @note RSSI value is in dBm (typically -30 to -120)
+		 * @warning Always call close() on returned container to free memory
+		 * 
+		 * @example Receiving with signal strength:
+		 * @code
+		 * ResponseStructContainer response = e220ttl.receiveMessageRSSI(10);
+		 * if (response.status.code == E220_SUCCESS) {
+		 *     Serial.print("RSSI: "); Serial.print(response.rssi); Serial.println(" dBm");
+		 *     uint8_t* data = (uint8_t*)response.data;
+		 *     // Process data...
+		 * }
+		 * response.close();
+		 * @endcode
+		 */
 		ResponseStructContainer receiveMessageRSSI(const uint8_t size);
 	        
+        /**
+         * @brief Receive complete message with optional RSSI
+         * @param size Number of bytes to receive
+         * @param enableRSSI Whether to include RSSI information
+         * @return ResponseStructContainer with data and optional RSSI
+         * 
+         * Receives a complete message with optional signal strength information.
+         * Provides flexibility to enable/disable RSSI on per-call basis.
+         * 
+         * @note enableRSSI parameter overrides device configuration
+         * @warning Always call close() on returned container to free memory
+         * 
+         * @example Complete message reception:
+         * @code
+         * ResponseStructContainer response = e220ttl.receiveMessageComplete(20, true);
+         * if (response.status.code == E220_SUCCESS) {
+         *     Serial.print("RSSI: "); Serial.println(response.rssi);
+         *     // Process received data...
+         * }
+         * response.close();
+         * @endcode
+         */
         ResponseStructContainer receiveMessageComplete(const uint8_t size, bool enableRSSI);
+        
+		/**
+		 * @brief Receive complete string message with optional RSSI
+		 * @param enableRSSI Whether to include RSSI information
+		 * @return ResponseContainer with string data and optional RSSI
+		 * 
+		 * Receives a complete text message with optional signal strength information.
+		 * Automatically handles string conversion and memory management.
+		 * 
+		 * @note Reads until available data is exhausted or buffer limit reached
+		 * @note No explicit close() required for ResponseContainer
+		 * 
+		 * @example String message reception:
+		 * @code
+		 * ResponseContainer response = e220ttl.receiveMessageComplete(true);
+		 * if (response.status.code == E220_SUCCESS) {
+		 *     Serial.print("Message: "); Serial.println(response.data);
+		 *     Serial.print("RSSI: "); Serial.println(response.rssi);
+		 * }
+		 * @endcode
+		 */
 		ResponseContainer receiveMessageComplete(bool enableRSSI);
 	
+		/**
+		 * @brief Send string message
+		 * @param message String to send
+		 * @return ResponseStatus indicating success or failure
+		 * 
+		 * Sends a text string using the current transmission mode. The string
+		 * is converted to bytes and transmitted with null terminator.
+		 * 
+		 * @note String length must not exceed 200 characters
+		 * @note Device must be in normal transmission mode
+		 * 
+		 * @example Sending text message:
+		 * @code
+		 * ResponseStatus status = e220ttl.sendMessage("Hello, LoRa World!");
+		 * if (status.code == E220_SUCCESS) {
+		 *     Serial.println("Message sent successfully");
+		 * }
+		 * @endcode
+		 */
 		ResponseStatus sendMessage(const String message);
+		
+		/**
+		 * @brief Receive available string message
+		 * @return ResponseContainer with received string and status
+		 * 
+		 * Receives any available text message from the device buffer.
+		 * Automatically converts received bytes to string format.
+		 * 
+		 * @note Returns immediately with available data or empty string
+		 * @note No RSSI information included
+		 * 
+		 * @example Simple message reception:
+		 * @code
+		 * ResponseContainer response = e220ttl.receiveMessage();
+		 * if (response.status.code == E220_SUCCESS && !response.data.isEmpty()) {
+		 *     Serial.print("Received: "); Serial.println(response.data);
+		 * }
+		 * @endcode
+		 */
 		ResponseContainer receiveMessage();
+		
+		/**
+		 * @brief Receive available string message with RSSI
+		 * @return ResponseContainer with received string, RSSI, and status
+		 * 
+		 * Receives any available text message with signal strength information.
+		 * Combines convenience of string handling with RSSI monitoring.
+		 * 
+		 * @note RSSI must be enabled in device configuration
+		 * @note Returns immediately with available data
+		 * 
+		 * @example String reception with signal strength:
+		 * @code
+		 * ResponseContainer response = e220ttl.receiveMessageRSSI();
+		 * if (response.status.code == E220_SUCCESS && !response.data.isEmpty()) {
+		 *     Serial.print("Message: "); Serial.println(response.data);
+		 *     Serial.print("Signal: "); Serial.print(response.rssi); Serial.println(" dBm");
+		 * }
+		 * @endcode
+		 */
 		ResponseContainer receiveMessageRSSI();
+/** @} */ // End of Message Reception group
 
+/**
+ * @name Fixed Transmission
+ * @brief Methods for addressed messaging using fixed transmission mode
+ * @{
+ */
+		/**
+		 * @brief Send fixed message to specific address (string)
+		 * @param ADDH High address byte (0x00-0xFF)
+		 * @param ADDL Low address byte (0x00-0xFF) 
+		 * @param CHAN Channel number (0-255)
+		 * @param message String message to send
+		 * @return ResponseStatus indicating success or failure
+		 * 
+		 * Sends a text message to a specific device address and channel using
+		 * fixed transmission mode. The address and channel parameters allow
+		 * precise targeting of recipient devices.
+		 * 
+		 * @note Device will automatically switch to fixed transmission mode
+		 * @note Target device must be configured with matching address/channel
+		 * @note Message length must not exceed 197 bytes (200 - 3 address bytes)
+		 * 
+		 * @example Sending addressed message:
+		 * @code
+		 * ResponseStatus status = e220ttl.sendFixedMessage(0x00, 0x01, 23, "Hello Device 1!");
+		 * if (status.code == E220_SUCCESS) {
+		 *     Serial.println("Fixed message sent to address 0x0001, channel 23");
+		 * }
+		 * @endcode
+		 */
 		ResponseStatus sendFixedMessage(byte ADDH, byte ADDL, byte CHAN, const String message);
 
+        /**
+         * @brief Send fixed message to specific address (binary)
+         * @param ADDH High address byte (0x00-0xFF)
+         * @param ADDL Low address byte (0x00-0xFF)
+         * @param CHAN Channel number (0-255)
+         * @param message Pointer to binary data to send
+         * @param size Number of bytes to send
+         * @return ResponseStatus indicating success or failure
+         * 
+         * Sends binary data to a specific device address and channel using
+         * fixed transmission mode. Allows sending structured or raw data
+         * to precisely targeted devices.
+         * 
+         * @note Maximum data size is 197 bytes (200 - 3 address bytes)
+         * @note Device automatically handles address prepending
+         * 
+         * @example Sending binary data to address:
+         * @code
+         * uint8_t sensorData[] = {0x01, 0x23, 0x45, 0x67};
+         * ResponseStatus status = e220ttl.sendFixedMessage(0x00, 0x02, 15, 
+         *                                                   sensorData, sizeof(sensorData));
+         * if (status.code == E220_SUCCESS) {
+         *     Serial.println("Sensor data sent to device 0x0002");
+         * }
+         * @endcode
+         */
         ResponseStatus sendFixedMessage(byte ADDH,byte ADDL, byte CHAN, const void *message, const uint8_t size);
+/** @} */ // End of Fixed Transmission group
+/**
+ * @name Broadcast Transmission
+ * @brief Methods for sending messages to all devices on a channel
+ * @{
+ */
+        /**
+         * @brief Send broadcast message to all devices on channel (binary)
+         * @param CHAN Channel number (0-255) 
+         * @param message Pointer to binary data to broadcast
+         * @param size Number of bytes to send
+         * @return ResponseStatus indicating success or failure
+         * 
+         * Broadcasts binary data to all devices listening on the specified channel.
+         * Uses the broadcast address (0xFFFF) to reach all devices regardless
+         * of their individual addresses.
+         * 
+         * @note All devices on the channel will receive this message
+         * @note Maximum data size is 197 bytes (200 - 3 address bytes)
+         * @note Broadcast address is automatically set to 0xFFFF
+         * 
+         * @example Broadcasting sensor alert:
+         * @code
+         * uint8_t alertData[] = {0xFF, 0x01, 0x00}; // Alert code
+         * ResponseStatus status = e220ttl.sendBroadcastFixedMessage(10, alertData, sizeof(alertData));
+         * if (status.code == E220_SUCCESS) {
+         *     Serial.println("Alert broadcast to all devices on channel 10");
+         * }
+         * @endcode
+         */
         ResponseStatus sendBroadcastFixedMessage(byte CHAN, const void *message, const uint8_t size);
+        
+        /**
+         * @brief Send broadcast message to all devices on channel (string)
+         * @param CHAN Channel number (0-255)
+         * @param message String message to broadcast
+         * @return ResponseStatus indicating success or failure
+         * 
+         * Broadcasts a text message to all devices listening on the specified channel.
+         * Convenient method for sending announcements or alerts to all devices.
+         * 
+         * @note All devices on the channel will receive this message
+         * @note Message length must not exceed 197 characters
+         * @note Uses broadcast address 0xFFFF automatically
+         * 
+         * @example Broadcasting announcement:
+         * @code
+         * ResponseStatus status = e220ttl.sendBroadcastFixedMessage(5, "System maintenance in 10 minutes");
+         * if (status.code == E220_SUCCESS) {
+         *     Serial.println("Maintenance announcement broadcast");
+         * }
+         * @endcode
+         */
         ResponseStatus sendBroadcastFixedMessage(byte CHAN, const String message);
+/** @} */ // End of Broadcast Transmission group
 
+/**
+ * @name Utility and Advanced Methods
+ * @brief Additional methods for special operations and diagnostics
+ * @{
+ */
+		/**
+		 * @brief Receive initial message data
+		 * @param size Number of bytes to receive initially
+		 * @return ResponseContainer with received data and status
+		 * 
+		 * Receives the initial portion of an incoming message. Useful for
+		 * reading message headers or determining full message length.
+		 * 
+		 * @note Primarily used for message parsing and protocol handling
+		 * @note Remaining message data must be read with additional calls
+		 * 
+		 * @example Reading message header:
+		 * @code
+		 * ResponseContainer response = e220ttl.receiveInitialMessage(4);
+		 * if (response.status.code == E220_SUCCESS) {
+		 *     Serial.print("Header: "); Serial.println(response.data);
+		 * }
+		 * @endcode
+		 */
 		ResponseContainer receiveInitialMessage(const uint8_t size);
 
+		/**
+		 * @brief Send configuration message to remote device
+		 * @param ADDH High address byte of target device
+		 * @param ADDL Low address byte of target device
+		 * @param CHAN Channel number of target device
+		 * @param configuration Pointer to configuration structure to send
+		 * @param programCommand Configuration save type (default: WRITE_CFG_PWR_DWN_SAVE)
+		 * @return ResponseStatus indicating success or failure
+		 * 
+		 * Sends configuration parameters to a remote device over the air.
+		 * This allows remote configuration of devices without physical access.
+		 * 
+		 * @note Target device must be in configuration mode to accept changes
+		 * @note Both devices must be on same channel initially
+		 * @warning Use with caution - incorrect parameters can make device unresponsive
+		 * 
+		 * @example Remote device configuration:
+		 * @code
+		 * Configuration newConfig;
+		 * newConfig.CHAN = 15;
+		 * newConfig.SPED.uartBaudRate = UART_BPS_19200;
+		 * 
+		 * ResponseStatus status = e220ttl.sendConfigurationMessage(0x00, 0x01, 23, 
+		 *                                                          &newConfig, WRITE_CFG_PWR_DWN_SAVE);
+		 * if (status.code == E220_SUCCESS) {
+		 *     Serial.println("Remote configuration sent successfully");
+		 * }
+		 * @endcode
+		 */
 		ResponseStatus sendConfigurationMessage( byte ADDH,byte ADDL, byte CHAN, Configuration *configuration, PROGRAM_COMMAND programCommand = WRITE_CFG_PWR_DWN_SAVE);
 
+        /**
+         * @brief Check number of bytes available for reading
+         * @return Number of bytes available in receive buffer
+         * 
+         * Returns the number of bytes currently available in the receive buffer.
+         * Useful for non-blocking message reception and buffer management.
+         * 
+         * @note Returns immediately without waiting for data
+         * @note Value may change between calls as data arrives
+         * 
+         * @example Checking for available data:
+         * @code
+         * int available = e220ttl.available();
+         * if (available > 0) {
+         *     Serial.print("Data available: "); Serial.print(available); Serial.println(" bytes");
+         *     ResponseContainer response = e220ttl.receiveMessage();
+         *     // Process received data...
+         * }
+         * @endcode
+         */
         int available();
+/** @} */ // End of Utility and Advanced Methods group
+/**
+ * @name Private Implementation Details
+ * @brief Internal methods and data members for device management
+ * 
+ * These private members handle the low-level communication, mode management,
+ * and hardware abstraction required for proper device operation.
+ * 
+ * @note These members are not intended for direct use by applications
+ * @note Implementation details may change between library versions
+ * @{
+ */
 	private:
-		HardwareSerial* hs;
+		HardwareSerial* hs;  ///< Hardware Serial interface pointer
 
 #ifdef ACTIVATE_SOFTWARE_SERIAL
-		SoftwareSerial* ss;
+		SoftwareSerial* ss;  ///< Software Serial interface pointer (when available)
 #endif
 
-		bool isSoftwareSerial = true;
+		bool isSoftwareSerial = true;  ///< Flag indicating Software Serial usage
 
-		int8_t txE220pin = -1;
-		int8_t rxE220pin = -1;
-		int8_t auxPin = -1;
+		int8_t txE220pin = -1;  ///< TX pin number (-1 if not used)
+		int8_t rxE220pin = -1;  ///< RX pin number (-1 if not used)
+		int8_t auxPin = -1;     ///< AUX status pin number (-1 if not used)
 
 #ifdef HARDWARE_SERIAL_SELECTABLE_PIN
-		uint32_t serialConfig = SERIAL_8N1;
+		uint32_t serialConfig = SERIAL_8N1;  ///< Serial configuration for ESP32
 #endif
 
-		int8_t m0Pin = -1;
-		int8_t m1Pin = -1;
+		int8_t m0Pin = -1;  ///< M0 mode control pin (-1 if not used)
+		int8_t m1Pin = -1;  ///< M1 mode control pin (-1 if not used)
 
-		unsigned long halfKeyloqKey = 0x06660708;
+		unsigned long halfKeyloqKey = 0x06660708;  ///< Encryption key for security
+		/**
+		 * @brief Encrypt data using internal algorithm
+		 * @param data Data to encrypt
+		 * @return Encrypted data
+		 */
 		unsigned long encrypt(unsigned long data);
+		/**
+		 * @brief Decrypt data using internal algorithm  
+		 * @param data Data to decrypt
+		 * @return Decrypted data
+		 */
 		unsigned long decrypt(unsigned long data);
 
-		UART_BPS_RATE bpsRate = UART_BPS_RATE_9600;
+		UART_BPS_RATE bpsRate = UART_BPS_RATE_9600;  ///< Current UART baud rate
 
 		struct NeedsStream {
 			template<typename T>
