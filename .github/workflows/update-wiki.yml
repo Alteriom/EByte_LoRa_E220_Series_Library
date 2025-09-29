@@ -75,8 +75,68 @@ jobs:
         
         echo "📄 Updating wiki pages..."
         
-        # Copy documentation files to wiki (overwrite existing)
-        cp ../docs/README.md Home.md 2>/dev/null || cp ../README.md Home.md
+        # Create a proper Home page with navigation
+        cat > Home.md << 'HOMEEOF'
+        # Alteriom EByte LoRa E220 Series Library Wiki
+        
+        Welcome to the official wiki for the Alteriom EByte LoRa E220 Series Library!
+        
+        This wiki is automatically updated with each release and provides comprehensive documentation for the library.
+        
+        ## Navigation
+        
+        - [API Reference](API-Reference) - Complete library API documentation
+        - [Examples](Examples) - Code examples and usage patterns
+        - [Installation](Installation) - Installation guide for all platforms
+        - [Complete Documentation](Complete-Documentation) - Full documentation
+        - [Deployment Guide](Deployment-Guide) - Deployment and configuration
+        - [Contributing](Contributing) - Development and contribution guidelines
+        - [Changelog](Changelog) - Version history and changes
+        
+        ## Quick Links
+        
+        - **Repository**: https://github.com/Alteriom/EByte_LoRa_E220_Series_Library
+        - **Arduino Library Manager**: Search "Alteriom_EByte_LoRa_E220"
+        - **NPM Package**: npm install alteriom-ebyte-lora-e220
+        - **Issues**: https://github.com/Alteriom/EByte_LoRa_E220_Series_Library/issues
+        - **Releases**: https://github.com/Alteriom/EByte_LoRa_E220_Series_Library/releases
+        
+        ## About This Library
+        
+        This library provides comprehensive support for EByte LoRa E220 LLCC68 devices with:
+        
+        - **Long Range**: 5-10km communication range
+        - **Multi-platform**: Arduino, ESP32, ESP8266, STM32, Raspberry Pi Pico
+        - **Easy Integration**: Arduino Library Manager and NPM package available
+        - **Automated CI/CD**: Continuous integration and automated releases
+        - **Comprehensive Examples**: Ready-to-use code for all features
+        
+        ## Getting Started
+        
+        1. **Install the library**: See [Installation](Installation) guide
+        2. **Check examples**: Browse [Examples](Examples) for your use case
+        3. **API reference**: Refer to [API Reference](API-Reference) for detailed documentation
+        4. **Need help?**: Open an [issue](https://github.com/Alteriom/EByte_LoRa_E220_Series_Library/issues)
+        
+        ## Hardware Support
+        
+        ### Supported E220 Modules
+        - E220-400T22D (22dBm, 433MHz)
+        - E220-400T30D (30dBm, 433MHz) 
+        - E220-900T22D (22dBm, 915MHz)
+        - E220-900T30D (30dBm, 915MHz)
+        - All E220 series with LLCC68 chipset
+        
+        ### Supported Platforms
+        - Arduino Uno/Nano/Pro Mini
+        - ESP32 (all variants)
+        - ESP8266 (NodeMCU, Wemos D1, etc.)
+        - STM32 (Blue Pill, etc.)
+        - Raspberry Pi Pico
+        - SAMD21 (Arduino Zero, etc.)
+        HOMEEOF
+        
+        # Copy other documentation files to wiki (overwrite existing)
         cp ../docs/original-documentation.md Complete-Documentation.md 2>/dev/null || echo "# Complete Documentation\n\nSee main repository for documentation." > Complete-Documentation.md
         cp ../docs/DEPLOYMENT_GUIDE.md Deployment-Guide.md 2>/dev/null || echo "# Deployment Guide\n\nSee main repository for deployment information." > Deployment-Guide.md
         cp ../docs/CONTRIBUTING.md Contributing.md 2>/dev/null || echo "# Contributing\n\nSee main repository for contributing guidelines." > Contributing.md
