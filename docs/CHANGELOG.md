@@ -5,6 +5,19 @@ All notable changes to the Alteriom EByte LoRa E220 Series Library will be docum
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.4] - 2025-09-29
+
+### Added
+- Dual package publishing: NPM Registry + GitHub Packages
+- NPM package: `alteriom-ebyte-lora-e220` (public, no auth required)
+- GitHub package: `@alteriom/alteriom-ebyte-lora-e220` (scoped, auth required)
+- Updated documentation with both installation methods
+
+### Enhanced
+- Workflow now publishes to both registries simultaneously
+- Added .npmrc configuration for GitHub Packages scope
+- Enhanced package accessibility for different use cases
+
 ## [1.1.3] - 2025-09-29
 
 ### Fixed

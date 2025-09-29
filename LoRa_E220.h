@@ -3,7 +3,7 @@
  *
  * ORIGINAL AUTHOR:  Renzo Mischianti
  * FORK MAINTAINER:  Alteriom
- * VERSION: 1.1.3
+ * VERSION: 1.1.4
  *
  * Original: https://www.mischianti.org
  * Fork: https://github.com/Alteriom/EByte_LoRa_E220_Series_Library
