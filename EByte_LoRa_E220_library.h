@@ -1,10 +1,12 @@
 /*
- * EBYTE LoRa E220 Series
- * https://www.mischianti.org/category/my-libraries/lora-e22-devices/
+ * EBYTE LoRa E220 Series - Alteriom Fork
+ * Original: https://www.mischianti.org/category/my-libraries/lora-e22-devices/
+ * Fork: https://github.com/Alteriom/EByte_LoRa_E220_Series_Library
  *
  * The MIT License (MIT)
  *
  * Copyright (c) 2019 Renzo Mischianti www.mischianti.org All right reserved.
+ * Copyright (c) 2024 Alteriom - Fork enhancements
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,8 +30,10 @@
 #ifndef EBYTE_LORA_E220_LIBRARY_H
 #define EBYTE_LORA_E220_LIBRARY_H
 
+// Include the main library header
 #include "LoRa_E220.h"
 
-#endif
+// For backward compatibility and Arduino Library Manager
+#include "Alteriom_EByte_LoRa_E220.h"
 
-#pragma once
+#endif
