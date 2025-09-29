@@ -5,6 +5,17 @@ All notable changes to the Alteriom EByte LoRa E220 Series Library will be docum
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.5] - 2025-09-29
+
+### Fixed
+- Fixed wiki publishing error: corrected API-Reference.md file path
+- Improved GitHub Packages error handling with better permissions
+- Added continue-on-error for GitHub Packages to not fail entire release
+- Enhanced error messages for GitHub Packages publishing issues
+
+### Documentation
+- Updated Arduino Library submission guide to reference v1.1.5
+
 ## [1.1.4] - 2025-09-29
 
 ### Added
