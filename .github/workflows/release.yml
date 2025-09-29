@@ -132,6 +132,7 @@ jobs:
     needs: [tests, release]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
+    continue-on-error: true  # Don't fail the release if wiki update fails
     
     steps:
     - name: Checkout code
@@ -139,27 +140,101 @@ jobs:
       with:
         fetch-depth: 0
     
-    - name: Checkout Wiki
-      uses: actions/checkout@v4
-      with:
-        repository: ${{ github.repository }}.wiki
-        path: wiki
-        token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Check if Wiki exists and create initial page if needed
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "📚 Setting up GitHub Wiki for version $VERSION..."
+        
+        # Try to clone the wiki repository
+        if git clone https://github.com/${{ github.repository }}.wiki.git wiki 2>/dev/null; then
+          echo "✅ Wiki repository exists"
+        else
+          echo "📝 Wiki doesn't exist yet. Creating it..."
+          # Create a temporary wiki directory and initialize it
+          mkdir -p wiki
+          cd wiki
+          git init
+          git remote add origin https://github.com/${{ github.repository }}.wiki.git
+          
+          # Create initial Home page to initialize the wiki
+          cat > Home.md << 'EOF'
+        # Alteriom EByte LoRa E220 Series Library Wiki
+        
+        Welcome to the official wiki for the Alteriom EByte LoRa E220 Series Library!
+        
+        This wiki is automatically updated with each release.
+        
+        ## Quick Links
+        
+        - [Installation Guide](Installation)
+        - [API Reference](API-Reference) 
+        - [Examples](Examples)
+        - [Complete Documentation](Complete-Documentation)
+        - [Contributing Guidelines](Contributing)
+        - [Changelog](Changelog)
+        
+        ## Getting Started
+        
+        The Alteriom EByte LoRa E220 Series Library provides support for EByte LoRa E220 LLCC68 devices with 5-10km range communication.
+        
+        ### Quick Installation
+        
+        **Arduino IDE:**
+        1. Tools → Manage Libraries
+        2. Search: "Alteriom_EByte_LoRa_E220"
+        3. Install
+        
+        **PlatformIO:**
+        ```ini
+        lib_deps = Alteriom/Alteriom_EByte_LoRa_E220@^1.1.0
+        ```
+        
+        ## Features
+        
+        - Long Range Communication (5-10km)
+        - Multi-Platform Support (Arduino, ESP32, ESP8266, STM32, Pi Pico)
+        - Wake-on-Radio (WOR) support
+        - Multiple messaging modes
+        - Comprehensive examples
+        - Automated CI/CD
+        EOF
+          
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git add Home.md
+          git commit -m "Initialize wiki with home page"
+          
+          # Push to create the wiki
+          git push -u origin master || {
+            echo "⚠️  Could not create wiki automatically. Wiki needs to be manually created first."
+            echo "   Please go to https://github.com/${{ github.repository }}/wiki and create a page manually."
+            cd ..
+            exit 0
+          }
+          cd ..
+          echo "✅ Wiki initialized successfully"
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
     - name: Update Wiki Pages
       run: |
         VERSION=${GITHUB_REF#refs/tags/v}
         echo "📚 Updating GitHub Wiki for version $VERSION..."
         
-        # Create wiki directory if it doesn't exist
-        mkdir -p wiki
+        # Ensure we're in the wiki directory
+        cd wiki || exit 0
         
-        # Copy documentation files to wiki
-        cp docs/README.md wiki/Home.md
-        cp docs/original-documentation.md wiki/Complete-Documentation.md
-        cp docs/DEPLOYMENT_GUIDE.md wiki/Deployment-Guide.md
-        cp docs/CONTRIBUTING.md wiki/Contributing.md
-        cp docs/CHANGELOG.md wiki/Changelog.md
+        # Configure git
+        git config user.name "GitHub Action"
+        git config user.email "action@github.com"
+        
+        # Copy documentation files to wiki (overwrite existing)
+        cp ../docs/README.md Home.md 2>/dev/null || cp ../README.md Home.md
+        cp ../docs/original-documentation.md Complete-Documentation.md 2>/dev/null || echo "# Complete Documentation\n\nSee main repository for documentation." > Complete-Documentation.md
+        cp ../docs/DEPLOYMENT_GUIDE.md Deployment-Guide.md 2>/dev/null || echo "# Deployment Guide\n\nSee main repository for deployment information." > Deployment-Guide.md
+        cp ../docs/CONTRIBUTING.md Contributing.md 2>/dev/null || echo "# Contributing\n\nSee main repository for contributing guidelines." > Contributing.md
+        cp ../docs/CHANGELOG.md Changelog.md 2>/dev/null || echo "# Changelog\n\nSee main repository for changelog." > Changelog.md
         
         # Create API Reference page
         cat > wiki/API-Reference.md << 'EOF'
@@ -269,18 +344,30 @@ jobs:
     
     - name: Commit and Push Wiki Changes
       run: |
-        cd wiki
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add .
+        cd wiki || exit 0
         
-        if git diff --staged --quiet; then
-          echo "No changes to commit"
-        else
-          git commit -m "Update documentation for release ${GITHUB_REF#refs/tags/v}"
-          git push
-          echo "✅ Wiki updated successfully!"
+        # Check if we have any changes
+        if git diff --quiet && git diff --cached --quiet; then
+          echo "No changes to commit to wiki"
+          exit 0
         fi
+        
+        git add .
+        git commit -m "Update documentation for release ${GITHUB_REF#refs/tags/v}" || {
+          echo "Nothing to commit"
+          exit 0
+        }
+        
+        # Push changes
+        git push || {
+          echo "⚠️  Could not push to wiki. This may be the first time or wiki doesn't exist."
+          echo "   Please create the wiki manually at: https://github.com/${{ github.repository }}/wiki"
+          exit 0
+        }
+        
+        echo "✅ Wiki updated successfully!"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
     - name: Wiki Publication Success
       run: |
