@@ -12,7 +12,7 @@
  * 
  * @author Renzo Mischianti (Original implementation)
  * @author Alteriom (Fork maintainer with enhancements)
- * @version 1.1.5
+ * @version 1.1.6
  * 
  * @see Original: https://www.mischianti.org/category/my-libraries/lora-e220-devices/
  * @see Fork: https://github.com/Alteriom/EByte_LoRa_E220_Series_Library

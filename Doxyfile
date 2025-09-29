@@ -5,7 +5,7 @@
 #---------------------------------------------------------------------------
 DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = "Alteriom EByte LoRa E220 Series Library"
-PROJECT_NUMBER         = "1.1.5"
+PROJECT_NUMBER         = "1.1.6"
 PROJECT_BRIEF          = "Arduino library for EByte LoRa E220 LLCC68 devices with 5-10km range communication support"
 PROJECT_LOGO           = 
 OUTPUT_DIRECTORY       = docs/doxygen

@@ -8,7 +8,7 @@
  *
  * @author Renzo Mischianti (Original)
  * @author Alteriom (Fork maintainer with CI/CD enhancements)
- * @version 1.1.5
+ * @version 1.1.6
  * 
  * @see Original: https://www.mischianti.org
  * @see Fork: https://github.com/Alteriom/EByte_LoRa_E220_Series_Library

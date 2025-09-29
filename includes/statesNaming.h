@@ -16,7 +16,7 @@
  * 
  * @author Renzo Mischianti (Original)
  * @author Alteriom (Documentation enhancements)
- * @version 1.1.5
+ * @version 1.1.6
  */
 
 #include "Arduino.h"
