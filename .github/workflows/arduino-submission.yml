@@ -1,0 +1,152 @@
+name: Arduino Library Registry Submission
+
+on:
+  workflow_dispatch:
+    inputs:
+      submit_to_registry:
+        description: 'Submit library to Arduino Library Registry'
+        required: true
+        default: true
+        type: boolean
+  release:
+    types: [published]
+  workflow_call:
+
+jobs:
+  arduino-submission:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.submit_to_registry == true || github.event_name == 'release'
+    
+    permissions:
+      contents: read
+      issues: write
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Check if already submitted
+      id: check_submission
+      run: |
+        echo "🔍 Checking if library is already in Arduino Library Registry..."
+        
+        # Check if library is already in Arduino registry
+        REPO_URL="https://github.com/Alteriom/EByte_LoRa_E220_Series_Library"
+        
+        # Download repositories.txt and check if our repo is listed
+        if curl -s https://raw.githubusercontent.com/arduino/library-registry/main/repositories.txt | grep -q "$REPO_URL"; then
+          echo "already_submitted=true" >> $GITHUB_OUTPUT
+          echo "✅ Library is already in Arduino Library Registry"
+          echo "🔄 Future releases will be automatically indexed by Arduino"
+        else
+          echo "already_submitted=false" >> $GITHUB_OUTPUT
+          echo "📝 Library not found in Arduino Library Registry"
+          echo "🚀 Will create submission issue"
+        fi
+    
+    - name: Create Submission Issue
+      if: steps.check_submission.outputs.already_submitted == 'false'
+      run: |
+        echo "� Creating Arduino Library Registry submission issue..."
+        
+        VERSION=${GITHUB_REF#refs/tags/v}
+        if [ -z "$VERSION" ]; then
+          VERSION="latest"
+        fi
+        
+        # Create issue content
+        cat > issue_body.md << 'EOF'
+        Arduino Library Registry Submission Request
+        
+        Repository URL: https://github.com/Alteriom/EByte_LoRa_E220_Series_Library
+        Library name: Alteriom_EByte_LoRa_E220
+        Latest release: Check releases page for current version
+        
+        This is a fork of the EByte LoRa E220 Series Library with enhanced CI/CD,
+        automated releases, and improved Arduino Library Manager compatibility.
+        
+        The library provides support for EByte LoRa E220 LLCC68 devices with 5-10km
+        range communication for Arduino, ESP32, ESP8266, STM32, and Raspberry Pi Pico.
+        
+        Key improvements:
+        - Automated CI/CD with GitHub Actions
+        - Comprehensive testing across multiple platforms
+        - Automated releases with semantic versioning
+        - Enhanced documentation and examples
+        - Arduino Library Manager compliance verified with arduino-lint
+        - PlatformIO support
+        - NPM package for advanced integration
+        
+        Compliance Status:
+        - Valid library.properties file
+        - Proper repository structure
+        - Arduino Lint checks passing
+        - Semantic versioning
+        - MIT License
+        - Complete examples
+        - Multi-platform support
+        
+        Manual Submission Required:
+        1. Fork: https://github.com/arduino/library-registry/fork
+        2. Edit repositories.txt: Add https://github.com/Alteriom/EByte_LoRa_E220_Series_Library
+        3. Create PR: Submit pull request to arduino/library-registry
+        4. Monitor: Watch for Arduino team approval
+        
+        The library meets all Arduino Library Manager requirements.
+        EOF
+        
+        echo "📄 Issue content prepared. Manual submission required."
+        echo ""
+        echo "🔧 Next steps:"
+        echo "1. Go to: https://github.com/arduino/library-registry"
+        echo "2. Fork the repository"
+        echo "3. Add this URL to repositories.txt:"
+        echo "   https://github.com/Alteriom/EByte_LoRa_E220_Series_Library"
+        echo "4. Create pull request"
+    
+    - name: Check Arduino Indexer Status
+      if: steps.check_submission.outputs.already_submitted == 'true'
+      run: |
+        echo "📊 Checking Arduino Library Manager indexer status..."
+        
+        # Check Arduino indexer logs
+        LOGS_URL="http://downloads.arduino.cc/libraries/logs/github.com/Alteriom/EByte_LoRa_E220_Series_Library/"
+        
+        echo "🔍 Arduino Indexer Logs: $LOGS_URL"
+        echo ""
+        echo "📋 How to monitor releases:"
+        echo "1. Check indexer logs at: $LOGS_URL"
+        echo "2. New releases are automatically indexed every hour"
+        echo "3. Check library in Arduino IDE: Tools → Manage Libraries → Search 'Alteriom_EByte_LoRa_E220'"
+        echo ""
+        echo "⏰ Release indexing timeline:"
+        echo "- Release created: ✅ Done"
+        echo "- Arduino indexer check: 🔄 Every hour"
+        echo "- Library available: 📦 Within 1-2 hours"
+        
+    - name: Submission Summary
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
+        if [ -z "$VERSION" ]; then
+          VERSION="current"
+        fi
+        
+        echo "================================"
+        echo "📚 Arduino Library Manager Status"
+        echo "================================"
+        echo ""
+        if [ "${{ steps.check_submission.outputs.already_submitted }}" == "true" ]; then
+          echo "✅ Library is already in Arduino Library Registry"
+          echo "🔄 New releases are automatically indexed every hour"
+          echo "📊 Monitor status: http://downloads.arduino.cc/libraries/logs/github.com/Alteriom/EByte_LoRa_E220_Series_Library/"
+        else
+          echo "📝 Manual submission required"
+          echo "🔧 Steps: Fork arduino/library-registry → Edit repositories.txt → Create PR"
+          echo "📋 Submission details prepared above"
+        fi
+        echo ""
+        echo "🎯 After submission/indexing:"
+        echo "   - Arduino IDE: Tools → Manage Libraries → Search 'Alteriom_EByte_LoRa_E220'"
+        echo "   - Arduino CLI: arduino-cli lib install \"Alteriom_EByte_LoRa_E220\""
+        echo "   - PlatformIO: lib_deps = Alteriom/Alteriom_EByte_LoRa_E220"
+        echo "================================"

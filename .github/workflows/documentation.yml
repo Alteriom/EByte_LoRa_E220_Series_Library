@@ -1,0 +1,149 @@
+name: Generate Documentation
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '**.h'
+      - '**.cpp'
+      - 'Doxyfile'
+      - '.github/workflows/documentation.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**.h'  
+      - '**.cpp'
+      - 'Doxyfile'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  generate-docs:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install Doxygen
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y doxygen graphviz
+        
+    - name: Verify Doxygen installation
+      run: |
+        doxygen --version
+        dot -V
+        
+    - name: Generate documentation
+      run: |
+        # Create output directory
+        mkdir -p docs/doxygen
+        
+        # Generate documentation
+        doxygen Doxyfile
+        
+        # Check if documentation was generated
+        if [ -d "docs/doxygen/html" ]; then
+          echo "✅ Documentation generated successfully"
+          echo "📁 Generated files:"
+          ls -la docs/doxygen/html/ | head -10
+        else
+          echo "❌ Documentation generation failed"
+          exit 1
+        fi
+        
+    - name: Check documentation completeness
+      run: |
+        # Count documented vs undocumented items
+        if [ -f "docs/doxygen/html/index.html" ]; then
+          echo "✅ Main documentation index created"
+        fi
+        
+        # Check for warnings in doxygen output
+        if [ -f "doxygen_warnings.log" ]; then
+          echo "⚠️ Doxygen warnings found:"
+          cat doxygen_warnings.log
+        else
+          echo "✅ No doxygen warnings"
+        fi
+        
+    - name: Setup Pages
+      if: github.ref == 'refs/heads/main'
+      uses: actions/configure-pages@v4
+      
+    - name: Upload documentation artifacts
+      if: github.ref == 'refs/heads/main'
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: ./docs/doxygen/html
+        
+    - name: Archive documentation
+      uses: actions/upload-artifact@v4
+      with:
+        name: doxygen-documentation
+        path: docs/doxygen/html/
+        retention-days: 30
+
+  deploy-docs:
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: generate-docs
+    
+    steps:
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+
+  validate-examples:
+    runs-on: ubuntu-latest
+    needs: generate-docs
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Download documentation
+      uses: actions/download-artifact@v4
+      with:
+        name: doxygen-documentation
+        path: docs/
+        
+    - name: Validate documentation examples
+      run: |
+        echo "🔍 Validating code examples in documentation..."
+        
+        # Check if examples directory is documented
+        if find docs/ -name "*.html" -exec grep -l "examples" {} \; | head -1; then
+          echo "✅ Examples are included in documentation"
+        else
+          echo "⚠️ Examples may not be properly documented"
+        fi
+        
+        # Count Arduino sketches
+        SKETCH_COUNT=$(find examples/ -name "*.ino" | wc -l)
+        echo "📊 Found $SKETCH_COUNT Arduino example sketches"
+        
+        # Validate sketch syntax (basic check)
+        for sketch in examples/*/*.ino; do
+          if [ -f "$sketch" ]; then
+            echo "✅ Checking $sketch"
+            # Basic syntax check - look for setup() and loop()
+            if grep -q "void setup" "$sketch" && grep -q "void loop" "$sketch"; then
+              echo "  ✅ Arduino structure found"
+            else
+              echo "  ⚠️ Missing setup() or loop() function"
+            fi
+          fi
+        done
