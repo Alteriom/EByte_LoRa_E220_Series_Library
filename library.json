@@ -1,24 +1,30 @@
 {
   "name": "Alteriom_EByte_LoRa_E220",
-  "version": "1.0.8",
+  "version": "1.0.0",
   "keywords": "LoRa, UART, EByte, esp32, esp8266, stm32, SAMD, Arduino, Raspberry Pi Pico",
-  "description": "Ebyte E220 LoRa (Long Range) library device very cheap and very long range (from 5Km to 10Km). Arduino LoRa EBYTE E220 device library complete and tested with Arduino, esp8266, esp32, STM32 and Raspberry Pi Pico. LLCC68.",
-  "homepage": "https://www.mischianti.org/category/my-libraries/ebyte-lora-e22-devices/",
+  "description": "Ebyte E220 LoRa (Long Range) library device very cheap and very long range (from 5Km to 10Km). Arduino LoRa EBYTE E220 device library complete and tested with Arduino, esp8266, esp32, STM32 and Raspberry Pi Pico. LLCC68. Alteriom fork with enhanced CI/CD and automatic releases.",
+  "homepage": "https://github.com/Alteriom/EByte_LoRa_E220_Series_Library",
   "authors":
   [
     {
       "name": "Renzo Mischianti",
       "email": "renzo@mischianti.org",
-      "maintainer": true,
+      "maintainer": false,
       "url": "https://www.mischianti.org"
+    },
+    {
+      "name": "Alteriom",
+      "email": "contact@alteriom.com",
+      "maintainer": true,
+      "url": "https://github.com/Alteriom"
     }
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/xreef/EByte_LoRa_E220_Series_Library"
+    "url": "https://github.com/Alteriom/EByte_LoRa_E220_Series_Library"
   },
   "license": "MIT",
   "frameworks": "arduino",
   "platforms": "*",
-  "headers": ["LoRa_E220.h, EByte_LoRa_E220_library.h"]
+  "headers": ["LoRa_E220.h", "EByte_LoRa_E220_library.h", "Alteriom_EByte_LoRa_E220.h"]
 }

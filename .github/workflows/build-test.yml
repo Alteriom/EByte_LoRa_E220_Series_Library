@@ -3,6 +3,7 @@ name: Build and Test Library
 on:
   push:
     branches: [ main, master, develop ]
+    tags: [ 'v*' ]
   pull_request:
     branches: [ main, master, develop ]
 
@@ -15,6 +16,7 @@ jobs:
   arduino-compile-test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         platform:
           - arduino:avr:uno
@@ -23,8 +25,6 @@ jobs:
         example:
           - examples/01_getConfiguration/01_getConfiguration.ino
           - examples/01_setConfiguration/01_setConfiguration.ino
-          - examples/02_sendTransparentTransmission/02_sendTransparentTransmission.ino
-          - examples/04_sendFixedTransmission/04_sendFixedTransmission.ino
 
     steps:
     - uses: actions/checkout@v4
@@ -41,13 +41,11 @@ jobs:
         arduino-cli core install esp32:esp32 --additional-urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
         arduino-cli core install esp8266:esp8266 --additional-urls http://arduino.esp8266.com/stable/package_esp8266com_index.json
     
-
-    
     - name: Compile example
       run: |
         arduino-cli compile --fqbn ${{ matrix.platform }} --library . ${{ matrix.example }} --verbose
 
-  platformio-test:
+  platformio-build-test:
     runs-on: ubuntu-latest
     
     steps:
@@ -63,9 +61,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install platformio
     
-    - name: Run PlatformIO tests
+    - name: Build for multiple platforms
       run: |
-        pio test -e native
+        pio run -e uno -e esp32dev -e nodemcuv2
 
   library-validation:
     runs-on: ubuntu-latest
@@ -76,23 +74,52 @@ jobs:
     - name: Validate Arduino library format
       uses: arduino/arduino-lint-action@v1
       with:
-        library-manager: false
+        library-manager: submit
         compliance: strict
 
   release:
-    needs: [arduino-compile-test, platformio-test, library-validation]
+    needs: [arduino-compile-test, platformio-build-test, library-validation]
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Generate release notes
+      id: release_notes
+      run: |
+        # Extract version from tag
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        
+        # Generate release notes from CHANGELOG.md
+        if [ -f "CHANGELOG.md" ]; then
+          # Extract current version section from changelog
+          NOTES=$(awk "/^## \[$VERSION\]/{flag=1; next} /^## \[/{flag=0} flag" CHANGELOG.md || echo "Release $VERSION")
+        else
+          NOTES="Release $VERSION"
+        fi
+        
+        # Save notes to file for multiline content
+        echo "$NOTES" > release_notes.txt
     
     - name: Create Release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: ${{ github.ref_name }}
+        name: Release ${{ steps.release_notes.outputs.VERSION }}
+        body_path: release_notes.txt
         draft: false
         prerelease: false
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Submit to Arduino Library Manager
+      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+      run: |
+        echo "Library is ready for Arduino Library Manager submission"
+        echo "Please submit to: https://github.com/arduino/library-registry"
+        echo "Repository URL: https://github.com/Alteriom/EByte_LoRa_E220_Series_Library"

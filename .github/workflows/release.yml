@@ -1,0 +1,63 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Generate release notes
+      id: release_notes
+      run: |
+        # Extract version from tag
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        
+        # Generate release notes from CHANGELOG.md
+        if [ -f "CHANGELOG.md" ]; then
+          # Extract current version section from changelog
+          NOTES=$(awk "/^## \[$VERSION\]/{flag=1; next} /^## \[/{flag=0} flag" CHANGELOG.md || echo "Release $VERSION")
+        else
+          NOTES="Release $VERSION - Alteriom fork of EByte LoRa E220 Series Library with enhanced CI/CD"
+        fi
+        
+        # Save notes to file for multiline content
+        echo "$NOTES" > release_notes.txt
+        echo "Generated release notes for version $VERSION"
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ github.ref_name }}
+        name: "Alteriom EByte LoRa E220 v${{ steps.release_notes.outputs.VERSION }}"
+        body_path: release_notes.txt
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+        files: |
+          library.properties
+          library.json
+          CHANGELOG.md
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Library Manager Instructions
+      run: |
+        echo "================================"
+        echo "Arduino Library Manager Submission"
+        echo "================================"
+        echo "1. Go to: https://github.com/arduino/library-registry"
+        echo "2. Create a new issue with repository URL:"
+        echo "   https://github.com/Alteriom/EByte_LoRa_E220_Series_Library"
+        echo "3. Include tag: ${{ github.ref_name }}"
+        echo "4. Library name: Alteriom_EByte_LoRa_E220"
+        echo "================================"

@@ -1,14 +1,17 @@
 /*
- * EBYTE LoRa E220 Series
+ * EBYTE LoRa E220 Series - Alteriom Fork
  *
- * AUTHOR:  Renzo Mischianti
- * VERSION: 1.0.8
+ * ORIGINAL AUTHOR:  Renzo Mischianti
+ * FORK MAINTAINER:  Alteriom
+ * VERSION: 1.0.0
  *
- * https://www.mischianti.org
+ * Original: https://www.mischianti.org
+ * Fork: https://github.com/Alteriom/EByte_LoRa_E220_Series_Library
  *
  * The MIT License (MIT)
  *
  * Copyright (c) 2022 Renzo Mischianti www.mischianti.org All right reserved.
+ * Copyright (c) 2024 Alteriom - Enhancements and CI/CD improvements
  *
  * You may copy, alter and reuse this code in any way you like, but please leave
  * reference to www.mischianti.org in your comments if you redistribute this code.
