@@ -115,9 +115,16 @@ Ensure the following files are included in the release:
 ## 🚨 Troubleshooting
 
 ### If Release Fails
-1. Check GitHub Actions logs
-2. Verify tag format (must be `v1.0.0`)
-3. Ensure GITHUB_TOKEN has release permissions
+1. **Check GitHub Actions logs** - Look for specific error messages
+2. **Verify tag format** - Must be `v1.1.0` (with 'v' prefix)
+3. **Ensure GITHUB_TOKEN has release permissions** - Workflow needs `contents: write`
+4. **403 Permission Errors** - Add permissions block to workflow:
+   ```yaml
+   permissions:
+     contents: write
+     issues: write
+     pull-requests: write
+   ```
 
 ### If Arduino Library Manager Rejects
 1. Verify library.properties format
