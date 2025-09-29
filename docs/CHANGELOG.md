@@ -5,6 +5,22 @@ All notable changes to the Alteriom EByte LoRa E220 Series Library will be docum
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2025-09-29
+
+### Fixed
+- Fixed NPM publishing workflow by changing `npm ci` to `npm install` (no package-lock.json existed)
+- Updated library.properties with correct Alteriom maintainer information
+- Added .npmignore file for cleaner NPM package distribution
+
+### Added
+- Created comprehensive Arduino Library Manager submission guide
+- Added package-lock.json for proper dependency management
+- Enhanced library.properties description to highlight Alteriom improvements
+
+### Documentation
+- Added ARDUINO_LIBRARY_SUBMISSION.md with step-by-step submission instructions
+- Updated library metadata for Arduino Library Manager compliance
+
 ## [1.1.1] - 2025-09-29
 
 ### Security
