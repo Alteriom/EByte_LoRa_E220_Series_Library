@@ -355,7 +355,7 @@ jobs:
         EOF
         
         # Create Examples page
-        cat > wiki/Examples.md << 'EOF'
+        cat > Examples.md << 'EOF'
         # Examples
         
         This page contains links and descriptions of all available examples.
@@ -386,7 +386,7 @@ jobs:
         EOF
         
         # Create Installation Guide
-        cat > wiki/Installation.md << 'EOF'
+        cat > Installation.md << 'EOF'
         # Installation Guide
         
         ## Arduino Library Manager
