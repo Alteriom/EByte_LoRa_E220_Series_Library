@@ -1,0 +1,165 @@
+{
+  "mcpServers": {
+    "arduino-cli": {
+      "command": "npx",
+      "args": ["@arduino/arduino-cli-mcp-server"],
+      "description": "Arduino CLI MCP server for building and managing Arduino projects",
+      "capabilities": [
+        "compile",
+        "upload",
+        "library-management",
+        "board-management"
+      ]
+    },
+    "platformio": {
+      "command": "npx", 
+      "args": ["@platformio/mcp-server"],
+      "description": "PlatformIO MCP server for multi-platform embedded development",
+      "capabilities": [
+        "multi-platform-build",
+        "library-registry",
+        "testing",
+        "static-analysis"
+      ]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-filesystem", "/home/runner/work/EByte_LoRa_E220_Series_Library/EByte_LoRa_E220_Series_Library"],
+      "description": "File system access for repository management",
+      "capabilities": [
+        "read-files",
+        "write-files",
+        "directory-listing"
+      ]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-github"],
+      "description": "GitHub integration for repository operations",
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      },
+      "capabilities": [
+        "repository-access",
+        "issue-management",
+        "pull-requests"
+      ]
+    }
+  },
+  "buildTools": {
+    "arduino-cli": {
+      "configFile": ".arduino-cli.yaml",
+      "libraries": [
+        "EByte LoRa E220 library"
+      ],
+      "boards": [
+        "arduino:avr:uno",
+        "esp32:esp32:esp32",
+        "esp8266:esp8266:nodemcuv2",
+        "STMicroelectronics:stm32:GenF1",
+        "arduino:samd:mkr1000",
+        "rp2040:rp2040:rpipico"
+      ]
+    },
+    "platformio": {
+      "configFile": "platformio.ini",
+      "environments": [
+        "uno",
+        "esp32dev",
+        "nodemcuv2",
+        "bluepill_f103c8",
+        "mkr1000USB",
+        "pico"
+      ]
+    }
+  },
+  "testing": {
+    "unitTesting": {
+      "framework": "arduino-unittest",
+      "testDirectory": "test/",
+      "platforms": [
+        "native",
+        "esp32",
+        "esp8266"
+      ]
+    },
+    "compilationTesting": {
+      "examples": "examples/",
+      "platforms": [
+        "arduino:avr:uno",
+        "esp32:esp32:esp32",
+        "esp8266:esp8266:nodemcuv2"
+      ]
+    }
+  },
+  "validation": {
+    "libraryFormat": {
+      "specification": "arduino-library-1.5",
+      "requiredFiles": [
+        "library.properties",
+        "LoRa_E220.h",
+        "LoRa_E220.cpp"
+      ],
+      "optionalFiles": [
+        "library.json",
+        "keywords.txt",
+        "examples/",
+        "src/",
+        "extras/"
+      ]
+    },
+    "codeQuality": {
+      "linter": "arduino-lint",
+      "checks": [
+        "library-structure",
+        "code-style",
+        "documentation"
+      ]
+    }
+  },
+  "deployment": {
+    "arduinoLibraryManager": {
+      "releaseProcess": "github-releases",
+      "metadataFile": "library.properties"
+    },
+    "platformioRegistry": {
+      "releaseProcess": "automatic",
+      "metadataFile": "library.json"
+    }
+  },
+  "development": {
+    "serialMonitoring": {
+      "defaultBaudRate": 9600,
+      "supportedRates": [9600, 19200, 38400, 57600, 115200]
+    },
+    "debugging": {
+      "logLevel": "DEBUG",
+      "serialOutput": true,
+      "platformSpecific": {
+        "esp32": {
+          "debugger": "esp-prog",
+          "interface": "jtag"
+        },
+        "stm32": {
+          "debugger": "st-link",
+          "interface": "swd"
+        }
+      }
+    }
+  },
+  "projectSpecific": {
+    "loraE220": {
+      "deviceConfigurations": {
+        "defaultBaudRate": 9600,
+        "supportedFrequencies": "410-441MHz",
+        "maxRange": "10km",
+        "powerLevels": ["10dBm", "13dBm", "17dBm", "22dBm"]
+      },
+      "testingRequirements": {
+        "hardwareSimulation": true,
+        "serialMocking": true,
+        "configurationValidation": true
+      }
+    }
+  }
+}

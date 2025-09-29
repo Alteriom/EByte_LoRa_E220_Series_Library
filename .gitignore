@@ -1,0 +1,57 @@
+# Arduino IDE files
+*.autosave
+*.bak
+*.tmp
+*.temp
+
+# Build outputs
+build/
+.build/
+*.o
+*.a
+*.elf
+*.hex
+*.bin
+
+# PlatformIO
+.pio/
+.pioenvs/
+.piolibdeps/
+libdeps/
+
+# Arduino CLI
+arduino_secrets.h
+
+# IDE files
+.vscode/
+.vs/
+*.code-workspace
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+*.log
+
+# Test outputs
+test_results.xml
+coverage/
+
+# Temporary files
+/tmp/
+*.bak
+*.orig
+*.rej
+
+# Package manager and MCP dependencies
+node_modules/
+package-lock.json
+yarn.lock
+.npm/
+.yarn/
+
+# MCP server cache
+.mcp-cache/

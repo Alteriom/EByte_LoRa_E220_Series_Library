@@ -1,0 +1,83 @@
+{
+  "name": "alteriom-ebyte-lora-e220",
+  "version": "1.0.8",
+  "description": "Arduino library for EByte LoRa E220 LLCC68 devices with GitHub Copilot and MCP integration",
+  "keywords": [
+    "arduino",
+    "lora",
+    "ebyte",
+    "e220",
+    "esp32",
+    "esp8266",
+    "stm32",
+    "embedded",
+    "iot",
+    "wireless"
+  ],
+  "author": {
+    "name": "Renzo Mischianti",
+    "email": "renzo.mischianti@gmail.com",
+    "url": "https://www.mischianti.org"
+  },
+  "maintainers": [
+    {
+      "name": "Alteriom",
+      "url": "https://github.com/Alteriom"
+    }
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Alteriom/EByte_LoRa_E220_Series_Library",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Alteriom/EByte_LoRa_E220_Series_Library.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Alteriom/EByte_LoRa_E220_Series_Library/issues"
+  },
+  "devDependencies": {
+    "@arduino/arduino-cli-mcp-server": "^1.0.0",
+    "@platformio/mcp-server": "^1.0.0",
+    "@modelcontextprotocol/server-filesystem": "^0.1.0",
+    "@modelcontextprotocol/server-github": "^0.1.0"
+  },
+  "scripts": {
+    "setup-mcp": "npm install && echo 'MCP servers installed'",
+    "test": "pio test -e native",
+    "build": "pio run",
+    "build-all": "pio run -e uno -e esp32dev -e nodemcuv2",
+    "compile-examples": "arduino-cli compile --fqbn arduino:avr:uno examples/01_getConfiguration/",
+    "validate-library": "arduino-cli lib lint .",
+    "clean": "pio run --target clean"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "config": {
+    "mcp": {
+      "configFile": ".github/mcp-server-config.json",
+      "servers": [
+        "arduino-cli",
+        "platformio", 
+        "filesystem",
+        "github"
+      ]
+    }
+  },
+  "directories": {
+    "example": "examples",
+    "test": "test",
+    "doc": ".github"
+  },
+  "files": [
+    "LoRa_E220.h",
+    "LoRa_E220.cpp",
+    "EByte_LoRa_E220_library.h",
+    "includes/",
+    "examples/",
+    "library.properties",
+    "library.json",
+    "keywords.txt",
+    ".arduino-cli.yaml",
+    "platformio.ini"
+  ]
+}
