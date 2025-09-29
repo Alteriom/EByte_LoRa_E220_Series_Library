@@ -3,9 +3,9 @@ name: Build and Test Library
 on:
   push:
     branches: [ main, master, develop ]
-    tags: [ 'v*' ]
   pull_request:
     branches: [ main, master, develop ]
+  workflow_call:  # Makes this workflow reusable
 
 # Prevent multiple runs of the same workflow on the same branch
 concurrency:

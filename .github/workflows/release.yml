@@ -11,53 +11,12 @@ permissions:
   pull-requests: write
 
 jobs:
-  # Run tests first
-  arduino-compile-test:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        platform:
-          - arduino:avr:uno
-          - esp32:esp32:esp32
-          - esp8266:esp8266:nodemcuv2
-        example:
-          - examples/01_getConfiguration/01_getConfiguration.ino
-          - examples/01_setConfiguration/01_setConfiguration.ino
-
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup Arduino CLI
-      uses: arduino/setup-arduino-cli@v1
-      with:
-        version: '0.34.2'
-    
-    - name: Install Arduino platforms
-      run: |
-        arduino-cli core update-index
-        arduino-cli core install arduino:avr
-        arduino-cli core install esp32:esp32 --additional-urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
-        arduino-cli core install esp8266:esp8266 --additional-urls http://arduino.esp8266.com/stable/package_esp8266com_index.json
-    
-    - name: Compile example
-      run: |
-        arduino-cli compile --fqbn ${{ matrix.platform }} --library . ${{ matrix.example }} --verbose
-
-  library-validation:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Validate Arduino library format
-      uses: arduino/arduino-lint-action@v1
-      with:
-        library-manager: submit
-        compliance: strict
+  # Run tests first - reuse the build-test workflow
+  tests:
+    uses: ./.github/workflows/build-test.yml
 
   release:
-    needs: [arduino-compile-test, library-validation]
+    needs: [tests]
     runs-on: ubuntu-latest
     
     steps:
