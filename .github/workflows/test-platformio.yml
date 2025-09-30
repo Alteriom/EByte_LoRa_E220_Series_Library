@@ -88,9 +88,12 @@ jobs:
         
         // Create instance to test constructor compilation
         // Use platform-appropriate constructor
-        #if defined(ESP32) || defined(ESP8266)
-          // ESP32/ESP8266: Use Hardware Serial
+        #if defined(ESP32)
+          // ESP32: Use Hardware Serial2
           LoRa_E220 e220ttl(&Serial2, UART_BPS_RATE_9600);
+        #elif defined(ESP8266)
+          // ESP8266: Use Hardware Serial1 (Serial2 doesn't exist)
+          LoRa_E220 e220ttl(&Serial1, UART_BPS_RATE_9600);
         #else
           // Arduino/other: Use Software Serial pins
           LoRa_E220 e220ttl(2, 3, UART_BPS_RATE_9600);
