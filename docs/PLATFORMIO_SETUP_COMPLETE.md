@@ -70,6 +70,7 @@ pio pkg publish
 
 After pushing the fixes:
 - ✅ Platform installation errors resolved
+- ✅ Board ID errors fixed (esp32 → esp32dev)
 - ✅ Compilation testing improved  
 - ✅ Workflows ready for use
 - ⏳ **Awaiting**: Authentication token setup
