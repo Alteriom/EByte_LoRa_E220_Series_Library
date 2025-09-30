@@ -15,8 +15,17 @@ on:
           - 'false'
           - 'true'
 
-permissions:
-  contents: read
+permissions:        VERSION="${{ needs.validate.outputs.version }}"
+        echo "📦 Publishing library version $VERSION to PlatformIO Registry..."
+        
+        # Publish the library (non-interactive mode for CI/CD)
+        if pio package publish --no-interactive --owner Alteriom; then
+          echo "✅ Successfully published to PlatformIO Registry!"
+          
+          # Wait a moment for registry to update
+          sleep 10
+          
+          # Verify publication: read
 
 jobs:
   # Validate library configuration
@@ -346,7 +355,7 @@ jobs:
         echo "📦 Publishing library version $VERSION to PlatformIO Registry..."
         
         # Publish the library (non-interactive mode for CI/CD)
-        if pio package publish --non-interactive; then
+        if pio package publish --no-interactive --owner Alteriom; then
           echo "✅ Successfully published to PlatformIO Registry!"
           
           # Wait a moment for registry to update
@@ -354,10 +363,13 @@ jobs:
           
           # Verify publication
           LIBRARY_NAME="Alteriom_EByte_LoRa_E220"
-          if pio lib search "$LIBRARY_NAME" --json-output | grep -q "$VERSION"; then
+          OWNER="Alteriom"
+          if pio lib search "$OWNER/$LIBRARY_NAME" --json-output | grep -q "$VERSION"; then
             echo "✅ Verification: Library version $VERSION is now available in registry"
+            echo "📦 Available at: https://registry.platformio.org/libraries/$OWNER/$LIBRARY_NAME"
           else
             echo "⚠️  Publication successful but version not yet visible in search (may take a few minutes)"
+            echo "📦 Check later at: https://registry.platformio.org/libraries/$OWNER/$LIBRARY_NAME"
           fi
         else
           echo "❌ Failed to publish to PlatformIO Registry"
