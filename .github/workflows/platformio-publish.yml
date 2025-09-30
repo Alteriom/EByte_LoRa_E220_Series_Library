@@ -200,20 +200,55 @@ jobs:
     - name: Install platform
       run: |
         PLATFORM="${{ matrix.platform }}"
-        PLATFORM_PACKAGE="${PLATFORM%%:*}"
-        echo "Installing platform: $PLATFORM_PACKAGE"
-        pio platform install "$PLATFORM_PACKAGE"
+        echo "Installing platform for: $PLATFORM"
+        
+        # Extract platform package name correctly
+        case "$PLATFORM" in
+          "arduino:avr:uno")
+            pio platform install "atmelavr"
+            ;;
+          "espressif32:esp32:esp32")
+            pio platform install "espressif32"
+            ;;
+          "espressif8266:esp8266:nodemcuv2")
+            pio platform install "espressif8266"
+            ;;
+          *)
+            echo "Unknown platform: $PLATFORM"
+            exit 1
+            ;;
+        esac
     
     - name: Test library compilation
       run: |
         echo "🔧 Testing compilation for ${{ matrix.platform }}"
+        
+        # Determine board name from platform
+        PLATFORM="${{ matrix.platform }}"
+        case "$PLATFORM" in
+          "arduino:avr:uno")
+            BOARD="uno"
+            ;;
+          "espressif32:esp32:esp32")
+            BOARD="esp32"
+            ;;
+          "espressif8266:esp8266:nodemcuv2")
+            BOARD="nodemcuv2"
+            ;;
+          *)
+            echo "Unknown platform: $PLATFORM"
+            exit 1
+            ;;
+        esac
+        
+        echo "Using board: $BOARD"
         
         # Create test project
         mkdir test_project
         cd test_project
         
         # Initialize PlatformIO project
-        pio project init --board "${BOARD}" --project-option "framework=arduino"
+        pio project init --board "$BOARD" --project-option "framework=arduino"
         
         # Copy library to lib directory
         mkdir -p lib/Alteriom_EByte_LoRa_E220
@@ -246,8 +281,6 @@ jobs:
           echo "❌ Compilation failed for ${{ matrix.platform }}"
           exit 1
         fi
-      env:
-        BOARD: ${{ matrix.platform == 'arduino:avr:uno' && 'uno' || matrix.platform == 'espressif32:esp32:esp32' && 'esp32' || 'nodemcuv2' }}
 
   # Publish to PlatformIO Registry
   publish:
