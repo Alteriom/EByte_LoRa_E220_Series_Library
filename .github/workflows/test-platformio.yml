@@ -87,8 +87,14 @@ jobs:
         #include "LoRa_E220.h"
         
         // Create instance to test constructor compilation
-        // Using simplest constructor: LoRa_E220(txPin, rxPin, bpsRate)
-        LoRa_E220 e220ttl(2, 3, UART_BPS_RATE_9600);
+        // Use platform-appropriate constructor
+        #if defined(ESP32) || defined(ESP8266)
+          // ESP32/ESP8266: Use Hardware Serial
+          LoRa_E220 e220ttl(&Serial2, UART_BPS_RATE_9600);
+        #else
+          // Arduino/other: Use Software Serial pins
+          LoRa_E220 e220ttl(2, 3, UART_BPS_RATE_9600);
+        #endif
         
         void setup() {
           Serial.begin(9600);
