@@ -15,9 +15,12 @@ Use preprocessor directives to select the appropriate constructor per platform:
 #include "LoRa_E220.h"
 
 // Platform-appropriate constructor selection
-#if defined(ESP32) || defined(ESP8266)
-  // ESP32/ESP8266: Use Hardware Serial
+#if defined(ESP32)
+  // ESP32: Use Hardware Serial2
   LoRa_E220 e220ttl(&Serial2, UART_BPS_RATE_9600);
+#elif defined(ESP8266)
+  // ESP8266: Use Hardware Serial1 (Serial2 doesn't exist)
+  LoRa_E220 e220ttl(&Serial1, UART_BPS_RATE_9600);
 #else
   // Arduino/other: Use Software Serial pins
   LoRa_E220 e220ttl(2, 3, UART_BPS_RATE_9600);
@@ -26,14 +29,23 @@ Use preprocessor directives to select the appropriate constructor per platform:
 
 ## 📋 **Constructor Mapping**
 
-### **ESP32 & ESP8266 Platforms**
+### **ESP32 Platform**
 ```cpp
-// Uses Hardware Serial constructor
+// Uses Hardware Serial2 constructor
 LoRa_E220 e220ttl(&Serial2, UART_BPS_RATE_9600);
 ```
 - **Constructor**: `LoRa_E220(HardwareSerial* serial, UART_BPS_RATE bpsRate)`
 - **Header Location**: `LoRa_E220.h` line 786
-- **Serial Port**: `&Serial2` (Hardware UART)
+- **Serial Port**: `&Serial2` (Hardware UART2)
+
+### **ESP8266 Platform**
+```cpp
+// Uses Hardware Serial1 constructor
+LoRa_E220 e220ttl(&Serial1, UART_BPS_RATE_9600);
+```
+- **Constructor**: `LoRa_E220(HardwareSerial* serial, UART_BPS_RATE bpsRate)`
+- **Header Location**: `LoRa_E220.h` line 786
+- **Serial Port**: `&Serial1` (Hardware UART1 - Serial2 doesn't exist on ESP8266)
 
 ### **Arduino UNO & Other Platforms**
 ```cpp
@@ -53,10 +65,10 @@ With this platform-specific approach, the GitHub Actions should show:
   └── Using Software Serial constructor (pins 2,3)
 
 ✅ ESP32 compilation: SUCCESS  
-  └── Using Hardware Serial constructor (&Serial2)
+  └── Using Hardware Serial2 constructor (&Serial2)
 
 ✅ ESP8266 compilation: SUCCESS
-  └── Using Hardware Serial constructor (&Serial2)
+  └── Using Hardware Serial1 constructor (&Serial1)
 
 ✅ All platforms: Library compilation successful!
 ✅ Package validation: SUCCESS
