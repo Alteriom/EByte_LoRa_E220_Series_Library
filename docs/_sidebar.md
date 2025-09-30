@@ -7,6 +7,7 @@
 
 - **📚 Documentation**
   - [API Reference](api-reference.md)
+  - [Doxygen API](doxygen-api.md)
   - [Configuration Guide](configuration.md)
   - [Troubleshooting](troubleshooting.md)
 
@@ -30,3 +31,4 @@
   - [Changelog](CHANGELOG.md)
   - [License](../LICENSE.md)
   - [FAQ](faq.md)
+

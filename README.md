@@ -14,6 +14,7 @@
 [![Documentation Preview](https://img.shields.io/badge/📚_Modern_Docs-Live_Now-success?style=for-the-badge&logo=gitbook&logoColor=white)](https://alteriom.github.io/EByte_LoRa_E220_Series_Library/)
 [![Quick Start](https://img.shields.io/badge/⚡_Quick_Start-5_Minutes-blue?style=for-the-badge&logo=arduino&logoColor=white)](https://alteriom.github.io/EByte_LoRa_E220_Series_Library/quickstart)
 [![API Reference](https://img.shields.io/badge/🔧_API_Docs-Complete-green?style=for-the-badge&logo=cplusplus&logoColor=white)](https://alteriom.github.io/EByte_LoRa_E220_Series_Library/api-reference)
+[![Doxygen API](https://img.shields.io/badge/🔬_Doxygen_API-Detailed-orange?style=for-the-badge&logo=doxygen&logoColor=white)](https://alteriom.github.io/EByte_LoRa_E220_Series_Library/doxygen-api)
 
 ---
 
@@ -32,24 +33,7 @@ Our GitHub Wiki provides community-driven content that supplements the main docu
 - **[🔧 Project Showcase](https://github.com/Alteriom/EByte_LoRa_E220_Series_Library/wiki/Project-Showcase)** - Real-world implementations
 - **[📋 Wiki Integration Guide](docs/wiki-integration-guide.md)** - How to contribute to the wiki
 
-> 💡 **Tip**: For the most comprehensive and up-to-date documentation, start with our **[📚 Live Documentation](https://alteriom.github.io/EByte_LoRa_E220_Series_Library/)**ies_Library/actions/workflows/build-test.yml)
-[![Release](https://github.com/Alteriom/EByte_LoRa_E220_Series_Library/actions/workflows/release.yml/badge.svg)](https://github.com/Alteriom/EByte_LoRa_E220_Series_Library/actions/workflows/release.yml)
-[![Arduino Library Manager](https://img.shields.io/badge/Arduino_Library_Manager-Compatible-blue)](https://www.arduino.cc/reference/en/libraries/)
-[![PlatformIO](https://img.shields.io/badge/PlatformIO-Compatible-orange)](https://registry.platformio.org/libraries/alteriom/Alteriom_EByte_LoRa_E220)
-
----
-
-## 📚 **[🚀 VIEW COMPLETE DOCUMENTATION](https://alteriom.github.io/EByte_LoRa_E220_Series_Library/)**
-
-**Experience our modern, interactive documentation with live search, mobile-friendly design, and copy-paste Arduino examples!**
-
-[![Documentation Preview](https://img.shields.io/badge/📚_Modern_Docs-Live_Now-success?style=for-the-badge&logo=gitbook&logoColor=white)](https://alteriom.github.io/EByte_LoRa_E220_Series_Library/)
-[![Quick Start](https://img.shields.io/badge/⚡_Quick_Start-5_Minutes-blue?style=for-the-badge&logo=arduino&logoColor=white)](https://alteriom.github.io/EByte_LoRa_E220_Series_Library/quickstart)
-[![API Reference](https://img.shields.io/badge/🔧_API_Docs-Complete-green?style=for-the-badge&logo=cplusplus&logoColor=white)](https://alteriom.github.io/EByte_LoRa_E220_Series_Library/api-reference)
-
----
-
-This is the **Alteriom fork** of the EByte LoRa E220 Series Library, enhanced with modern CI/CD practices, automated releases, and improved package management.
+> 💡 **Tip**: For the most comprehensive and up-to-date documentation, start with our **[📚 Live Documentation](https://alteriom.github.io/EByte_LoRa_E220_Series_Library/)**
 
 ## 🚀 What's New in the Alteriom Fork
 
