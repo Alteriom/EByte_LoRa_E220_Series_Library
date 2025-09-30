@@ -180,7 +180,7 @@ jobs:
       matrix:
         platform:
           - "arduino:avr:uno"
-          - "espressif32:esp32:esp32"
+          - "espressif32:esp32dev:esp32dev"
           - "espressif8266:esp8266:nodemcuv2"
     
     steps:
@@ -207,7 +207,7 @@ jobs:
           "arduino:avr:uno")
             pio platform install "atmelavr"
             ;;
-          "espressif32:esp32:esp32")
+          "espressif32:esp32dev:esp32dev")
             pio platform install "espressif32"
             ;;
           "espressif8266:esp8266:nodemcuv2")
@@ -229,8 +229,8 @@ jobs:
           "arduino:avr:uno")
             BOARD="uno"
             ;;
-          "espressif32:esp32:esp32")
-            BOARD="esp32"
+          "espressif32:esp32dev:esp32dev")
+            BOARD="esp32dev"
             ;;
           "espressif8266:esp8266:nodemcuv2")
             BOARD="nodemcuv2"

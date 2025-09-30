@@ -20,7 +20,7 @@ jobs:
             board: "uno"
             name: "Arduino UNO"
           - platform: "espressif32" 
-            board: "esp32"
+            board: "esp32dev"
             name: "ESP32"
           - platform: "espressif8266"
             board: "nodemcuv2"
